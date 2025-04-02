@@ -97,8 +97,11 @@ const useAuthStore = create<AuthState>((set) => ({
         throw new Error(data.message || 'Login failed');
       }
 
-      set({ user: data });
+      // Store token
       localStorage.setItem('token', data.token);
+
+      // Fetch user info immediately after login
+      await useAuthStore.getState().initializeAuth();
     } catch (error: unknown) {
       let errorMessage = 'Login failed';
       if (error instanceof Error) {

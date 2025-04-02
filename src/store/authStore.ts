@@ -28,6 +28,7 @@ interface LoginData {
 
 interface AuthState {
   loading: boolean;
+  initialized: boolean; // Track if auth state has been initialized
   error: string | null;
   user: null | { 
     athlete: AthleteData; 
@@ -42,6 +43,7 @@ interface AuthState {
 
 const useAuthStore = create<AuthState>((set) => ({
   loading: false,
+  initialized: false, // Initially not initialized
   error: null,
   user: null,
 
@@ -117,7 +119,10 @@ const useAuthStore = create<AuthState>((set) => ({
   initializeAuth: async () => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        set({ initialized: true });
+        return;
+      }
 
       set({ loading: true });
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/profile`, {
@@ -129,10 +134,16 @@ const useAuthStore = create<AuthState>((set) => ({
       if (!response.ok) throw new Error('Invalid token');
       
       const data = await response.json();
-      set({ user: { athlete: data.athlete, token } });
+      set({ 
+        user: { athlete: data.athlete, token },
+        initialized: true 
+      });
     } catch (error) {
       localStorage.removeItem('token');
-      set({ user: null });
+      set({ 
+        user: null,
+        initialized: true 
+      });
     } finally {
       set({ loading: false });
     }

@@ -12,7 +12,7 @@ import { useState } from "react";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import sportia from "../../assets/iaproject.webp"
 import { Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 const { Step } = Steps;
 const { useNotification } = notification;
@@ -402,6 +402,12 @@ function Register() {
               </Button>
             )}
           </div>
+          <Typography.Text style={{ marginTop: 20 }}>
+    Already have an account?{' '}
+    <Link to="/login" style={{ color: '#1890ff', fontWeight: 500 }}>
+      Login
+    </Link>
+  </Typography.Text>
         </div>
       </div>
     </>

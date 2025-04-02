@@ -8,21 +8,32 @@ import {
   Divider,
   useTheme,
   Chip,
+  CircularProgress,
 } from "@mui/material";
 import { Home, History, Logout, Insights } from "@mui/icons-material";
-
+import useAuthStore from "../../store/authStore";
 export type ActiveView = "dashboard" | "history" | "prediction";
 
 interface SideNavProps {
   activeView: ActiveView;
   setActiveView: (view: ActiveView) => void;
 }
-
 export default function SideNav({ activeView, setActiveView }: SideNavProps) {
   const theme = useTheme();
+  const logout = useAuthStore((state) => state.logout);
+  const loading = useAuthStore((state) => state.loading);
+  
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
 
   const handleNavigation = (view: "dashboard" | "history" | "prediction") => {
-    if (view === "history") return; // Disable navigation for history
+    if (view === "history") return; 
     setActiveView(view);
   };
 
@@ -192,7 +203,9 @@ export default function SideNav({ activeView, setActiveView }: SideNavProps) {
       <Divider sx={{ marginBottom: 2 }} />
 
       <List sx={{ padding: "0 16px" }}>
-        <ListItemButton
+      <ListItemButton
+          disabled={loading}  // Disable when loading
+          onClick={handleLogout}
           sx={{
             borderRadius: "8px",
             "&:hover": {
@@ -202,18 +215,31 @@ export default function SideNav({ activeView, setActiveView }: SideNavProps) {
                 color: theme.palette.error.contrastText,
               },
             },
+            "&.Mui-disabled": {
+              opacity: 0.7,
+              // Keep the same background color when disabled but loading
+              backgroundColor: loading ? theme.palette.error.light : undefined,
+            },
           }}
         >
           <ListItemIcon
-            sx={{ minWidth: "40px", color: theme.palette.error.main }}
+            sx={{ 
+              minWidth: "40px", 
+              color: loading ? theme.palette.error.contrastText : theme.palette.error.main 
+            }}
           >
-            <Logout />
+            {loading ? (
+              <CircularProgress size={24} color="inherit" />
+            ) : (
+              <Logout />
+            )}
           </ListItemIcon>
           <ListItemText
-            primary="Logout"
+            primary={loading ? "Logging out..." : "Logout"}
             primaryTypographyProps={{
               fontWeight: "medium",
               fontSize: "0.95rem",
+              color: loading ? theme.palette.error.contrastText : undefined,
             }}
           />
         </ListItemButton>
